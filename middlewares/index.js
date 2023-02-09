@@ -3,6 +3,7 @@ function validateBody(schema) {
     const { error } = schema.validate(req.body);
     if (error) {
       const err = new Error(error.message);
+      err.status = 400;
       return next(err);
     }
     return next();

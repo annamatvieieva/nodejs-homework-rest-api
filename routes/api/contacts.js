@@ -1,54 +1,56 @@
 const express = require("express");
-const { nanoid } = require("nanoid");
+const mongoose = require("mongoose");
 const router = express.Router();
 const {
   addContactSchema,
   putContactSchema,
+  patchContactSchema,
 } = require("../../schemas/contacts");
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("../../models/contacts");
 const { validateBody } = require("../../middlewares");
+const { Contact } = require("../../models/contacts");
 
 router.get("/", async (req, res) => {
-  const contacts = await listContacts();
+  const contacts = await Contact.find();
   res.json(contacts);
 });
 
 router.get("/:contactId", async (req, res) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
-  if (!contact) {
-    res.status(404).json({ message: "Not found" });
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    return res.status(400).json({ message: "Id is not valid" });
   } else {
-    res.json(contact);
+    const contact = await Contact.findById(contactId);
+    if (!contact) {
+      res.status(404).json({ message: "Not found" });
+    } else {
+      res.json(contact);
+    }
   }
 });
 
 router.post("/", validateBody(addContactSchema), async (req, res) => {
   const { name, email, phone } = req.body;
   const contact = {
-    id: nanoid(),
     name,
     email,
     phone,
   };
-  await addContact(contact);
-  res.status(201).json(contact);
+  newContact = await Contact.create(contact);
+  res.status(201).json(newContact);
 });
 
 router.delete("/:contactId", async (req, res) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
-  if (!contact) {
-    res.status(404).json({ message: "Not found" });
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    return res.status(400).json({ message: "Id is not valid" });
   } else {
-    await removeContact(contactId);
-    res.status(200).json({ message: "Contact deleted" });
+    const contact = await Contact.findById(contactId);
+    if (!contact) {
+      res.status(404).json({ message: "Not found" });
+    } else {
+      await Contact.findByIdAndRemove(contactId);
+      res.status(200).json({ message: "Contact deleted" });
+    }
   }
 });
 
@@ -57,11 +59,37 @@ router.put(
   validateBody(putContactSchema),
   async (req, res, next) => {
     const { contactId } = req.params;
-    const contact = await updateContact(contactId, req.body);
-    if (!contact) {
-      res.status(404).json({ message: "Not found" });
+    if (!mongoose.Types.ObjectId.isValid(contactId)) {
+      return res.status(400).json({ message: "Id is not valid" });
     } else {
-      res.status(200).json(contact);
+      const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
+        new: true,
+      });
+      if (!contact) {
+        res.status(404).json({ message: "Not found" });
+      } else {
+        res.status(200).json(contact);
+      }
+    }
+  }
+);
+
+router.patch(
+  "/:contactId/favorite",
+  validateBody(patchContactSchema),
+  async (req, res, next) => {
+    const { contactId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(contactId)) {
+      return res.status(400).json({ message: "Id is not valid" });
+    } else {
+      const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
+        new: true,
+      });
+      if (!contact) {
+        res.status(404).json({ message: "Not found" });
+      } else {
+        res.status(200).json(contact);
+      }
     }
   }
 );

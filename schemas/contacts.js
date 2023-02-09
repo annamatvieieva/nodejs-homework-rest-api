@@ -44,7 +44,14 @@ const putContactSchema = Joi.object({
   .min(1)
   .message("Missing fields");
 
+const patchContactSchema = Joi.object({
+  favorite: Joi.boolean()
+    .required()
+    .messages({ message: "Missing field favorite" }),
+});
+
 module.exports = {
   addContactSchema,
   putContactSchema,
+  patchContactSchema,
 };
