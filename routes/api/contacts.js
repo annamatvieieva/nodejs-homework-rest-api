@@ -26,7 +26,7 @@ router.get("/:contactId", async (req, res) => {
       res.json(contact);
     }
   }
-});
+}); 
 
 router.post("/", validateBody(addContactSchema), async (req, res) => {
   const { name, email, phone } = req.body;

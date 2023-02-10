@@ -1,0 +1,14 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const {User} = require('../models/user');
+const {httpError} = require('../helpers/index');
+
+
+async function currentUser (req, res, next ){
+	res.json({"message": "Ok"});
+};
+
+module.exports =  {
+	currentUser,
+}
+
