@@ -1,6 +1,6 @@
 const { Contact } = require("../models/contacts");
-const { httpError } = require("../helpers/index");
 const {idContactsValidation} = require('../middlewares/index');
+const {NotFound } = require('http-errors');
 
 async function getContacts (req, res) {
   const contacts = await Contact.find();
@@ -15,7 +15,7 @@ async  function getContactByID(req, res) {
   const contact = await Contact.findById(contactId);
 
   if (!contact) {
-    throw new httpError (404, "Not found");
+    throw new NotFound ("Not found");
   }
 
   res.json(contact);
@@ -40,7 +40,7 @@ async function deleteContact (req, res) {
   const contact = await Contact.findById(contactId);
 
   if (!contact) {
-    throw new httpError (404, "Not found");
+    throw new NotFound ("Not found");
   } 
 
   await Contact.findByIdAndRemove(contactId);
@@ -56,7 +56,7 @@ async function changeContact (req, res, next) {
     new: true,});
 
   if (!contact) {
-		throw new httpError (404, "Not found");} 
+		throw new NotFound ("Not found");} 
 
   res.status(200).json(contact);
 };
@@ -69,7 +69,7 @@ async function changeFavoriteStatus (req, res, next) {
     new: true,});
 
   if (!contact) {
-		throw new httpError (404, "Not found");
+		throw new NotFound ("Not found");
   } 
 
   res.status(200).json(contact);     

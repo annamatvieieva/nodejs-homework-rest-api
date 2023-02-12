@@ -1,13 +1,15 @@
 const mongoose = require('mongoose');
 const jwt = require("jsonwebtoken");
-const { httpError } = require("../helpers/index");
+const multer = require('multer');
+const path = require('path');
+const {BadRequest, Unauthorized} = require('http-errors');
 const { User } = require("../models/user");
 
 function validateBody(schema) {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      const err = new httpError(400, error.message);
+      const err = new BadRequest(error.message);
       return next(err);
     }
     return next();
@@ -16,7 +18,7 @@ function validateBody(schema) {
 
 function idContactsValidation (contactId) {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw new httpError (400, "Id is not valid");
+    throw new BadRequest("Id is not valid");
   } else {
     return;
   } 
@@ -27,7 +29,7 @@ async function tokenValidation(req, res, next) {
   const [type, token] = reqHeader.split(" ");
 
   if (type !== "Bearer" || !token) {
-    throw new httpError(401, "Token type is not valid or there is no token");
+    throw new Unauthorized("Token type is not valid or there is no token");
   }
 
   try {
@@ -36,15 +38,25 @@ async function tokenValidation(req, res, next) {
     req.user = user;
   } catch (err) {
     if (err.name === "TokenExpiredError" || err.name === "JsonWebTokenError") {
-      throw new httpError(401, "Token is not valid");
+      throw new Unauthorized("Token is not valid");
     }
-    throw new httpError(401, "Not authorized");
+    throw new Unauthorized("Not authorized");
   }
   next();
 }
+
+const storage = multer.diskStorage({
+  destination: path.resolve(__dirname, '../tmp'),
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+});
+
+const upload = multer({storage});
 
 module.exports = {
   validateBody,
   idContactsValidation,
   tokenValidation,
+  upload
 };
