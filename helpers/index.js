@@ -1,3 +1,5 @@
+Jimp = require("jimp");
+
 function tryCatchWrapper(fn) {
   return async (req, res, next) => {
     try {
@@ -6,15 +8,8 @@ function tryCatchWrapper(fn) {
       return next(err);
     }
   };
-}
-
-function httpError(status, mess) {
-  const err = new Error(mess);
-  err.status = status;
-  return err;
-}
+};
 
 module.exports = {
   tryCatchWrapper,
-  httpError,
 };
