@@ -25,7 +25,7 @@ async function signup(req, res, next) {
       to: email,
       from: "matvieieva25@gmail.com",
       subject: "Please, confirm your email",
-      html: `<a href="localhost:3000/api/users/verify/${verificationToken}">Confirm email</a>`,
+      html: `<a href="http://localhost:3000/api/users/verify/${verificationToken}">Confirm email</a>`,
     };
 
     const savedUser = await User.create({
