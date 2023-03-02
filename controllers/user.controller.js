@@ -160,7 +160,7 @@ async function emailSecondVerification(req, res, next) {
     to: email,
     from: "matvieieva25@gmail.com",
     subject: "Please, confirm your email",
-    html: `<a href="localhost:3000/api/users/verify/${user.verificationToken}">Confirm email</a>`,
+    html: `<a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Confirm email</a>`,
   };
 
   await sgMail.send(msg);
