@@ -15,6 +15,17 @@ const authSchema = Joi.object({
   "any.required": "Missing required name field",
 });
 
+const verifySchema = Joi.object({
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net"] },
+    })
+    .required()
+    .messages({ message: "Missing required field email" }),
+});
+
 module.exports = {
   authSchema,
+  verifySchema,
 };

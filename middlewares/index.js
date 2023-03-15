@@ -1,9 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const multer = require('multer');
-const path = require('path');
-const {BadRequest, Unauthorized} = require('http-errors');
+const multer = require("multer");
+const path = require("path");
+const { BadRequest, Unauthorized } = require("http-errors");
 const { User } = require("../models/user");
+
+const { JWT_SECRET } = process.env;
 
 function validateBody(schema) {
   return (req, res, next) => {
@@ -16,13 +18,13 @@ function validateBody(schema) {
   };
 }
 
-function idContactsValidation (contactId) {
+function idContactsValidation(contactId) {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
     throw new BadRequest("Id is not valid");
   } else {
     return;
-  } 
-};
+  }
+}
 
 async function tokenValidation(req, res, next) {
   const reqHeader = req.headers.authorization || "";
@@ -33,7 +35,7 @@ async function tokenValidation(req, res, next) {
   }
 
   try {
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(id);
     req.user = user;
   } catch (err) {
@@ -46,17 +48,17 @@ async function tokenValidation(req, res, next) {
 }
 
 const storage = multer.diskStorage({
-  destination: path.resolve(__dirname, '../tmp'),
+  destination: path.resolve(__dirname, "../tmp"),
   filename: (req, file, cb) => {
-    cb(null, file.originalname)
-  }
+    cb(null, file.originalname);
+  },
 });
 
-const upload = multer({storage});
+const upload = multer({ storage });
 
 module.exports = {
   validateBody,
   idContactsValidation,
   tokenValidation,
-  upload
+  upload,
 };
